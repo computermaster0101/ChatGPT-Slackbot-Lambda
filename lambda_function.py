@@ -70,11 +70,18 @@ def dispatch(event):
     if key == gatekeeper.keys['slack_command_key']:
         chatgpt.get_data_from_slack_command(event)
     chatgpt.get_persona_from_message()
-    chatgpt.get_chatgpt_response()
-    slack.message.append(f'ChatGPT resonded as {chatgpt.persona}:\n{chatgpt.message}{chatgpt.chatgpt_response}')
-    slack.send()
-    chatgpt.clear()
-    return
+    if chatgpt.persona.lower() == 'reset':
+        slack.message.append("I've reset the context as requested")
+        slack.send()
+        chatgpt.clear()
+        chatgpt.reset()
+        return
+    else:
+        chatgpt.get_chatgpt_response()
+        slack.message.append(f'ChatGPT resonded as {chatgpt.persona}:\n{chatgpt.message}{chatgpt.chatgpt_response}')
+        slack.send()
+        chatgpt.clear()
+        return
 
 
 def return_response(code, body=None):
