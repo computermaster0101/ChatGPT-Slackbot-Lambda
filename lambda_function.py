@@ -70,11 +70,28 @@ def dispatch(event):
     if key == gatekeeper.keys['slack_command_key']:
         chatgpt.get_data_from_slack_command(event)
     chatgpt.get_persona_from_message()
-    if chatgpt.persona.lower() == 'reset':
+    if chatgpt.persona.lower() == '/reset':
         slack.message.append("I've reset the context as requested")
         slack.send()
-        chatgpt.clear()
         chatgpt.reset()
+        return
+    elif chatgpt.persona.lower() == '/toggle-context':
+        if chatgpt.keep_context:
+            chatgpt.reset()
+            chatgpt.keep_context = False
+            slack.message.append("I'll stop keeping context.")
+            slack.send()
+        else:
+            chatgpt.clear()
+            chatgpt.keep_context= True
+            slack.message.append("I'll start keeping context")
+            slack.send()
+        return
+    elif chatgpt.persona.lower() == '/help':
+        slack.message.append("Hi! I'm ChatGPT Slackbot! You can use me in a couple of ways.")
+        slack.message.append("Below are some instructions you can give me and some examples of how to interact with me.")
+        slack.message.append("\n[This has not been writen yet.]")
+        slack.send()
         return
     else:
         chatgpt.get_chatgpt_response()

@@ -16,9 +16,12 @@ class ChatGPT:
         self.prompt = None
         self.max_tokens = 1024
         self.chatgpt_response = None
+        self.keep_context = True
         self.history = []
         self.personas = {
-            "Reset": "",
+            "/Reset": "",
+            "/Toggle-Context": "",
+            "/Help": "",
             "ChatGPT": "",
             "Roaster": "Roast this : ",
             "Debugger": "There is a bug in the following function, please help me fix it : \n",
@@ -68,14 +71,15 @@ class ChatGPT:
 
     def get_chatgpt_response(self):
         print("ChatGPT.get_chatgpt_response")
-        self.history.append(self.message)
-        self.prompt = self.personas[self.persona] + '\n'.join(self.history)
+        self.prompt = f'{self.personas[self.persona]}{"/n".join(self.history)}{self.message}'
         response = openai.Completion.create(
             engine="text-davinci-003",
             prompt=self.prompt,
             max_tokens=self.max_tokens
         )
         self.chatgpt_response = response["choices"][0]["text"]
+        if self.keep_context:
+            self.history.append(self.message)
 
     def get_message_audio(self):
         print("ChatGPT.get_message_audio")
@@ -108,5 +112,8 @@ class ChatGPT:
         self.chatgpt_response = None
 
     def reset(self):
+        self.clear()
         self.history = []
         self.persona = 'ChatGPT'
+        self.keep_context = True
+        
