@@ -1,0 +1,8 @@
+{
+  "chatgpt_relay_key": null,
+  "slack_event_key": null,
+  "slack_command_key": null,
+  "slack_token": null,
+  "default_slack_channel": null,
+  "openai_api_key": null
+}
