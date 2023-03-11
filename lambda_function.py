@@ -84,7 +84,6 @@ def dispatch(event, context):
                              "\n/help - Displays this help message"
                              "\n/reset - Resets ChatGPT context and settings"
                              "\n/toggle-context - Enable or disable context"
-                             "\n/set-max-tokens #### - Configure the maximum tokens used for responding up to 2048"
                              "\n/display-context - Displays the current context"
                              "\n/display-settings - Displays the current settings"
                              "\n"
@@ -123,11 +122,12 @@ def dispatch(event, context):
     elif chatgpt.persona.lower() == '/set-max-tokens':
         chatgpt.persona = 'ChatGPT'
         if chatgpt.message.isdigit():
-            if int(chatgpt.message) <= 2048:
+            if int(chatgpt.message) <= 4000:
                 chatgpt.max_tokens = int(chatgpt.message)
                 slack.message.append(f"I've updated the max-tokens to {chatgpt.max_tokens}")
+                slack.message.append(f"Please be aware higher values can cause issues")
             else:
-                slack.message.append('/set-max-tokens requires an integer up to 2048')
+                slack.message.append('/set-max-tokens requires an integer up to 4000')
         else:
             slack.message.append('/set-max-tokens requires an integer value')
         slack.send()
@@ -152,12 +152,15 @@ def dispatch(event, context):
         slack.send()
         return
     else:
-        chatgpt.get_chatgpt_response()
-        slack.message.append(f'ChatGPT responded as {chatgpt.persona}:\n{chatgpt.message}{chatgpt.chatgpt_response}')
-        slack.send()
-        chatgpt.clear()
-        return
-
+        try:
+            chatgpt.get_chatgpt_response()
+            slack.message.append(f'ChatGPT responded as {chatgpt.persona}:\n{chatgpt.message}{chatgpt.chatgpt_response}')
+        except Exception as e:
+            slack.message.append(f'ChatGPT was unable to provide a response:\n{e}')
+        finally:
+            slack.send()
+            chatgpt.clear()
+            return
 
 def return_response(code, body=None):
     print("return_response")
@@ -165,5 +168,3 @@ def return_response(code, body=None):
         return {'statusCode': code, 'body': body}
     else:
         return {'statusCode': code}
-
-
