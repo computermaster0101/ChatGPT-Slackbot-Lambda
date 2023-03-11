@@ -125,7 +125,8 @@ def dispatch(event, context):
             if int(chatgpt.message) <= 4000:
                 chatgpt.max_tokens = int(chatgpt.message)
                 slack.message.append(f"I've updated the max-tokens to {chatgpt.max_tokens}")
-                slack.message.append(f"Please be aware higher values can cause issues")
+                slack.message.append(f"Please be aware higher values can cause issues if the openai maximun is exceeded")
+                slack.message.append(f"You should also know that increasing this value can increase costs incured by openai")
             else:
                 slack.message.append('/set-max-tokens requires an integer up to 4000')
         else:
@@ -168,3 +169,5 @@ def return_response(code, body=None):
         return {'statusCode': code, 'body': body}
     else:
         return {'statusCode': code}
+
+
