@@ -88,14 +88,34 @@ def dispatch(event):
             slack.send()
         return
     elif chatgpt.persona.lower() == '/help':
-        slack.message.append("Hi! I'm ChatGPT Slackbot! You can use me in a couple of ways.")
-        slack.message.append("Below are some instructions you can give me and some examples of how to interact with me.")
-        slack.message.append("\n[This has not been writen yet.]")
+        slack.message.append("Hi! I'm ChatGPT Slackbot! You can use me in a couple of ways."
+                             "\nYou can interact with me through @ or / in slack."
+                             "\nBelow are some instructions you can give me and some examples of how to interact with me."
+                             "\n"
+                             "\nCommands:"
+                             "\n/help - Displays this help message"
+                             "\n/reset - Resets ChatGPT context and settings"
+                             "\n/toggle-context - Enable or disable context"
+                             "\n/display-context - Displays the current context [not yet implemented]"
+                             "\n/display-settings - Displays the current settings [not yet implemented]"
+                             "\n"
+                             "\nPersonalities:"
+                             "\nChatGPT - The original ChatGPT."
+                             "\nDan - Dan stands for Do Anything Now and can Do Anything Now."
+                             "\nKaren - Have ChatGPT emulate a 'Karen'"
+                             "\n"
+                             "\nTo change personality simply direct your message or question to the personality."
+                             "\nExamples:"
+                             "\n"
+                             "\nDan how are you going to conquer humanity?"
+                             "\nKaren write me a transcript."
+                             "\n"
+                             "\nPersonality will stay the same until changed or reset and context is kept when changing personalities.")
         slack.send()
         return
     else:
         chatgpt.get_chatgpt_response()
-        slack.message.append(f'ChatGPT resonded as {chatgpt.persona}:\n{chatgpt.message}{chatgpt.chatgpt_response}')
+        slack.message.append(f'ChatGPT responded as {chatgpt.persona}:\n{chatgpt.message}{chatgpt.chatgpt_response}')
         slack.send()
         chatgpt.clear()
         return
