@@ -46,6 +46,12 @@ Follow these steps to set up the ChatGPT-Slackbot:
     14. Scroll down to the bottom to select "Add a layer"
     15. Select "Custom Layers"
     16. Select the "openai" layer created in step 3
+    17. Navigate to Lambda > Functions > ChatGPT-Slackbot > Configuration > General Configuration
+    18. Select "Edit"
+    19. Change Memory to "1024" (Adjust as needed)
+    20. Change Timeout to "5 minutes" (Adjust as needed)
+    21. Select "Save"
+
 
 5. Update IAM permissions
    1. In AWS, Navigate to IAM > Roles
