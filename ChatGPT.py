@@ -12,16 +12,19 @@ class ChatGPT:
         openai.api_key = api_key
         self.user = None
         self.persona = 'ChatGPT'
+        self.channel = None
         self.message = None
         self.prompt = None
         self.max_tokens = 1024
         self.chatgpt_response = None
         self.keep_context = True
-        self.history = []
+        self.history = {}
         self.personas = {
+            "/Help": "",
             "/Reset": "",
             "/Toggle-Context": "",
-            "/Help": "",
+            "/display-context": "",
+            "/display-settings": "",
             "ChatGPT": "",
             "Roaster": "Roast this : ",
             "Debugger": "There is a bug in the following function, please help me fix it : \n",
@@ -71,7 +74,11 @@ class ChatGPT:
 
     def get_chatgpt_response(self):
         print("ChatGPT.get_chatgpt_response")
-        self.prompt = f'{self.personas[self.persona]}{"/n".join(self.history)}{self.message}'
+
+        if not self.history.get(self.channel):
+            self.history[self.channel] = []
+
+        self.prompt = f'{self.personas[self.persona]}{"/n".join(self.history[self.channel])}{self.message}'
         response = openai.Completion.create(
             engine="text-davinci-003",
             prompt=self.prompt,
@@ -79,7 +86,7 @@ class ChatGPT:
         )
         self.chatgpt_response = response["choices"][0]["text"]
         if self.keep_context:
-            self.history.append(self.message)
+            self.history[self.channel].append(self.message)
 
     def get_message_audio(self):
         print("ChatGPT.get_message_audio")
@@ -97,6 +104,7 @@ class ChatGPT:
         print("ChatGPT.get_data_from_slack_event")
         event_body = json.loads(event['body'])
         self.message = event_body['event']['blocks'][0]['elements'][0]['elements'][1]['text'].strip()
+        self.channel = event_body['event']['channel']
         return f'Received @ event: {self.message}'
 
     def get_data_from_slack_command(self,event):
@@ -104,16 +112,19 @@ class ChatGPT:
         body = base64.b64decode(event['body']).decode('utf-8')
         parsed_body = parse_qs(body)
         self.message = parsed_body['text'][0]
+        self.channel = parsed_body['channel_id'][0]
+
         return f'Received / command: {self.message}'
 
     def clear(self):
+        self.channel = None
         self.message = None
         self.prompt = None
         self.chatgpt_response = None
 
     def reset(self):
         self.clear()
-        self.history = []
+        self.history = {}
         self.persona = 'ChatGPT'
         self.keep_context = True
         

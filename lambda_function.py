@@ -55,49 +55,37 @@ def lambda_handler(event, context):
             elif key == gatekeeper.keys['chatgpt_key']:
                 slack.message.append("I'm thinking...One moment please...")
                 slack.send()
-                dispatch(gatekeeper.close_the_gate(event))
+                dispatch(gatekeeper.close_the_gate(event), context)
             else:
                 slack.message.append('The key is not valid!')
                 slack.send()
                 return_response(403, "forbidden")
 
 
-def dispatch(event):
+def dispatch(event, context):
     print("dispatch")
     key = event['queryStringParameters']['apikey']
     if key == gatekeeper.keys['slack_event_key']:
         chatgpt.get_data_from_slack_event(event)
     if key == gatekeeper.keys['slack_command_key']:
         chatgpt.get_data_from_slack_command(event)
+
     chatgpt.get_persona_from_message()
-    if chatgpt.persona.lower() == '/reset':
-        slack.message.append("I've reset the context as requested")
-        slack.send()
-        chatgpt.reset()
-        return
-    elif chatgpt.persona.lower() == '/toggle-context':
-        if chatgpt.keep_context:
-            chatgpt.reset()
-            chatgpt.keep_context = False
-            slack.message.append("I'll stop keeping context.")
-            slack.send()
-        else:
-            chatgpt.clear()
-            chatgpt.keep_context= True
-            slack.message.append("I'll start keeping context")
-            slack.send()
-        return
-    elif chatgpt.persona.lower() == '/help':
+
+    if chatgpt.persona.lower() == '/help':
+        chatgpt.persona = 'ChatGPT'
         slack.message.append("Hi! I'm ChatGPT Slackbot! You can use me in a couple of ways."
                              "\nYou can interact with me through @ or / in slack."
                              "\nBelow are some instructions you can give me and some examples of how to interact with me."
                              "\n"
                              "\nCommands:"
+                             "\n(commands will reset my personality back to ChatGPT)"
+                             "\n"
                              "\n/help - Displays this help message"
                              "\n/reset - Resets ChatGPT context and settings"
                              "\n/toggle-context - Enable or disable context"
-                             "\n/display-context - Displays the current context [not yet implemented]"
-                             "\n/display-settings - Displays the current settings [not yet implemented]"
+                             "\n/display-context - Displays the current context"
+                             "\n/display-settings - Displays the current settings"
                              "\n"
                              "\nPersonalities:"
                              "\nChatGPT - The original ChatGPT."
@@ -111,6 +99,43 @@ def dispatch(event):
                              "\nKaren write me a transcript."
                              "\n"
                              "\nPersonality will stay the same until changed or reset and context is kept when changing personalities.")
+        slack.send()
+        return
+    elif chatgpt.persona.lower() == '/reset':
+        chatgpt.persona = 'ChatGPT'
+        slack.message.append("I've reset the context as requested")
+        slack.send()
+        chatgpt.reset()
+        return
+    elif chatgpt.persona.lower() == '/toggle-context':
+        chatgpt.persona = 'ChatGPT'
+        if chatgpt.keep_context:
+            chatgpt.reset()
+            chatgpt.keep_context = False
+            slack.message.append("I'll stop keeping context.")
+            slack.send()
+        else:
+            chatgpt.clear()
+            chatgpt.keep_context= True
+            slack.message.append("I'll start keeping context")
+            slack.send()
+        return
+    elif chatgpt.persona.lower() == '/display-context':
+        chatgpt.persona = 'ChatGPT'
+        if not chatgpt.history.get(slack.target_channel):
+            slack.message.append('I could not find context for this channel.')
+            max_time, remaining_time = gatekeeper.get_max_and_current_runtime(context)
+            slack.message.append(f'I can only keep context for a maximum of {max_time} seconds.')
+            slack.message.append(f"In less than {remaining_time} seconds I will have forget everything you've said")
+        else:
+            slack.message.append('\n'.join(chatgpt.history[slack.target_channel]))
+        slack.send()
+        return
+    elif chatgpt.persona.lower() == '/display-settings':
+        chatgpt.persona = 'ChatGPT'
+        slack.message.append(f"Keep Context: {chatgpt.keep_context}"
+                             f"\nPersonality: {chatgpt.persona}"
+                             f"\nMax Tokens: {chatgpt.max_tokens}")
         slack.send()
         return
     else:
