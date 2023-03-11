@@ -1,5 +1,9 @@
 # ChatGPT-Slackbot
 
+## How To Use
+![image](https://user-images.githubusercontent.com/10255679/224473318-8f39f752-dbc5-470e-a9b7-7b8ea1b9854a.png)
+
+
 ## Prerequisites
 
 Before you begin, make sure you have the following:
@@ -106,3 +110,4 @@ Follow these steps to set up the ChatGPT-Slackbot:
    1. Test with `@ChatGPT /help`
    2. Test with `@chatgpt how far is the sun?`
    3. Test with `/ChatGPT /reset`
+   
