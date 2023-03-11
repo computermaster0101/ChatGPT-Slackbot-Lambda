@@ -84,6 +84,7 @@ def dispatch(event, context):
                              "\n/help - Displays this help message"
                              "\n/reset - Resets ChatGPT context and settings"
                              "\n/toggle-context - Enable or disable context"
+                             "\n/set-max-tokens #### - Configure the maximum tokens used for responding up to 2048"
                              "\n/display-context - Displays the current context"
                              "\n/display-settings - Displays the current settings"
                              "\n"
@@ -113,12 +114,24 @@ def dispatch(event, context):
             chatgpt.reset()
             chatgpt.keep_context = False
             slack.message.append("I'll stop keeping context.")
-            slack.send()
         else:
             chatgpt.clear()
             chatgpt.keep_context= True
             slack.message.append("I'll start keeping context")
-            slack.send()
+        slack.send()
+        return
+    elif chatgpt.persona.lower() == '/set-max-tokens':
+        chatgpt.persona = 'ChatGPT'
+        if chatgpt.message.isdigit():
+            if int(chatgpt.message) <= 2048:
+                chatgpt.max_tokens = int(chatgpt.message)
+                slack.message.append(f"I've updated the max-tokens to {chatgpt.max_tokens}")
+            else:
+                slack.message.append('/set-max-tokens requires an integer up to 2048')
+        else:
+            slack.message.append('/set-max-tokens requires an integer value')
+        slack.send()
+        chatgpt.clear()
         return
     elif chatgpt.persona.lower() == '/display-context':
         chatgpt.persona = 'ChatGPT'

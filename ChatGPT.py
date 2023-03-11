@@ -22,7 +22,8 @@ class ChatGPT:
         self.personas = {
             "/Help": "",
             "/Reset": "",
-            "/Toggle-Context": "",
+            "/toggle-Context": "",
+            "/set-max-tokens": "",
             "/display-context": "",
             "/display-settings": "",
             "ChatGPT": "",
@@ -127,4 +128,4 @@ class ChatGPT:
         self.history = {}
         self.persona = 'ChatGPT'
         self.keep_context = True
-        
+        self.max_tokens = 1024
