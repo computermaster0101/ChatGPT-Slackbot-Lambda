@@ -140,8 +140,8 @@ def dispatch(event, context):
         if not chatgpt.history.get(slack.target_channel):
             slack.message.append('I could not find context for this channel.')
             max_time, remaining_time = gatekeeper.get_max_and_current_runtime(context)
-            slack.message.append(f'I can only keep context for a maximum of {max_time} seconds.')
-            slack.message.append(f"In less than {remaining_time} seconds I will have forget everything you've said")
+            slack.message.append(f'I can only keep context for a maximum of {max_time} seconds ({round(max_time / 60, 2)} minutes).')
+
         else:
             slack.message.append('\n'.join(chatgpt.history[slack.target_channel]))
         slack.send()
